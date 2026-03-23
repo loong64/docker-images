@@ -21,6 +21,9 @@ elif [ "$(uname -m)" = "aarch64" ]; then
    export conda_chksum="7bf60bce50f57af7ea4500b45eeb401d9350011ab34c9c45f736647d8dba9021"
    export micromamba_arch="aarch64"
    export micromamba_chksum="7803a2aa51a5f0a58f3d2ef0f07724edb67f31f61b3e44ae9b8d6c9f009f7996"
+elif [ "$(uname -m)" = "riscv64" ]; then
+   echo "not supported yet; see https://github.com/conda-forge/conda-forge.github.io/issues/1744"
+   exit 1
 else
    exit 1
 fi
