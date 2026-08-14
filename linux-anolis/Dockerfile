@@ -2,7 +2,7 @@
 ARG DISTRO_ARCH
 ARG DISTRO_NAME
 ARG DISTRO_VER
-FROM --platform=linux/${DISTRO_ARCH} ${DISTRO_NAME}:${DISTRO_VER}
+FROM --platform=linux/${DISTRO_ARCH} ghcr.io/loong64/${DISTRO_NAME}:${DISTRO_VER}
 
 LABEL maintainer="conda-forge <conda-forge@googlegroups.com>"
 
@@ -30,20 +30,9 @@ ADD qemu-ppc64le-static /usr/bin/qemu-ppc64le-static
 ADD qemu-s390x-static /usr/bin/qemu-s390x-static
 ADD qemu-riscv64-static /usr/bin/qemu-riscv64-static
 
-# (arm64v8/centos:7 only) Fix language override to get a working en_US.UTF-8 locale; backports:
-# https://github.com/CentOS/sig-cloud-instance-build/commit/2892c17fa8a520e58c3f42cd56587863fe675670
-RUN if [ "${DISTRO_ARCH}" = "arm64/v8" ] && [ "${DISTRO_NAME}${DISTRO_VER}" = "centos7" ]; then \
-        sed -i 's/override_install_langs=en_US\.UTF-8/override_install_langs=en_US.utf8/' /etc/yum.conf ; \
-    fi
-
-# Add the archived repo URL and fix RPM imports
-ADD rpm-repos /tmp/rpm-repos
-ADD scripts/fix_rpm /opt/docker/bin/fix_rpm
-RUN /opt/docker/bin/fix_rpm
-
 # Install basic requirements.
 COPY scripts/yum_clean_all /opt/docker/bin/
-RUN if [ "${DISTRO_NAME}" = "almalinux" ]; then \
+RUN if [ "${DISTRO_NAME}" = "anolis" ]; then \
       EXTRA_YUM_PKGS="glibc-minimal-langpack glibc-langpack-en"; \
     fi && \
     yum update -y && \

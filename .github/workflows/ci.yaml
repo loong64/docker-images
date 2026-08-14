@@ -153,6 +153,30 @@ jobs:
             DISTRO_VER: "10"
             SHORT_DESCRIPTION: "conda-forge build image for Alma 10 on ppc64le"
 
+          - DOCKERIMAGE: linux-anvil-x86_64
+            DOCKERFILE: linux-anolis
+            DOCKERTAG: "anolis23"
+            DISTRO_ARCH: "amd64"
+            DISTRO_NAME: "anolis"
+            DISTRO_VER: "23"
+            SHORT_DESCRIPTION: "conda-forge build image for Anolis 23 on x86_64"
+
+          - DOCKERIMAGE: linux-anvil-aarch64
+            DOCKERFILE: linux-anolis
+            DOCKERTAG: "anolis23"
+            DISTRO_ARCH: "arm64/v8"
+            DISTRO_NAME: "anolis"
+            DISTRO_VER: "23"
+            SHORT_DESCRIPTION: "conda-forge build image for Anolis 23 on aarch64"
+
+          - DOCKERIMAGE: linux-anvil-loongarch64
+            DOCKERFILE: linux-anolis
+            DOCKERTAG: "anolis23"
+            DISTRO_ARCH: "loong64"
+            DISTRO_NAME: "anolis"
+            DISTRO_VER: "23"
+            SHORT_DESCRIPTION: "conda-forge build image for Anolis 23 on loongarch64"
+
     env:
       DOCKERIMAGE: ${{ matrix.cfg.DOCKERIMAGE }}
       DOCKERFILE: ${{ matrix.cfg.DOCKERFILE }}
@@ -174,6 +198,13 @@ jobs:
       - name: Docker info
         run: |
           docker info
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GH_TOKEN }}
 
       - name: Configure qemu
         run: |
@@ -197,6 +228,11 @@ jobs:
       - name: Make readme file
         run: |
           ./scripts/gen_readme
+
+      - name: Deploy to ghcr.io
+        run: |
+          docker tag condaforge/$DOCKERIMAGE:$DOCKERTAG ghcr.io/${{ github.repository_owner }}/condaforge/$DOCKERIMAGE:$DOCKERTAG
+          docker push ghcr.io/${{ github.repository_owner }}/condaforge/$DOCKERIMAGE:$DOCKERTAG
 
       - name: Deploy
         if: github.ref == 'refs/heads/main' && github.repository == 'conda-forge/docker-images'
